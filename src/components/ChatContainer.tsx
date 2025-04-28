@@ -12,7 +12,8 @@ interface Message {
   timestamp: Date;
 }
 
-interface File {
+// Rename our custom File interface to FileItem to avoid conflicts with the browser's File interface
+interface FileItem {
   id: string;
   name: string;
   size: string;
@@ -30,7 +31,7 @@ export function ChatContainer() {
     }
   ]);
   
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<FileItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   
@@ -70,19 +71,21 @@ export function ChatContainer() {
       }]);
       
       // Simulate speaking time based on message length
+      // Fix: Convert the result of Math.min to a number explicitly
       setTimeout(() => {
         setIsSpeaking(false);
       }, Math.min(aiResponse.length * 40, 3000));
     }, 1500);
   };
   
-  const handleUploadFile = (file: File) => {
+  // Fix: Update this function to handle the browser's File interface
+  const handleUploadFile = (browserFile: File) => {
     // Create a new file entry
-    const fileSize = formatFileSize(file.size);
+    const fileSize = formatFileSize(browserFile.size);
     
-    const newFile: File = {
+    const newFile: FileItem = {
       id: Date.now().toString(),
-      name: file.name,
+      name: browserFile.name,
       size: fileSize,
       type: 'upload',
       status: 'pending'
@@ -98,12 +101,12 @@ export function ChatContainer() {
         )
       );
       
-      handleSendMessage(`I've uploaded a file: ${file.name}`);
+      handleSendMessage(`I've uploaded a file: ${browserFile.name}`);
       
       // Simulate AI sending a download file in response
-      if (file.name.toLowerCase().includes('policy') || file.name.toLowerCase().includes('form')) {
+      if (browserFile.name.toLowerCase().includes('policy') || browserFile.name.toLowerCase().includes('form')) {
         setTimeout(() => {
-          const downloadFile: File = {
+          const downloadFile: FileItem = {
             id: (Date.now() + 100).toString(),
             name: 'ISO27001_Compliance_Report.pdf',
             size: '1.4 MB',

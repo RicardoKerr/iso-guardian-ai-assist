@@ -38,6 +38,7 @@ export function FileItem({ name, size, type, status = 'complete', onDownload }: 
   );
 }
 
+// Updated to use FileItem interface from ChatContainer
 interface FileTransferProps {
   files: {
     id: string;
