@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				iso: {
+					dark: '#1A1F2C',
+					purple: '#9b87f5',
+					accent: '#8B5CF6',
+					blue: '#33C3F0',
+					glow: '#1EAEDB'
 				}
 			},
 			borderRadius: {
@@ -84,11 +92,47 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						opacity: '0.8',
+						boxShadow: '0 0 20px rgba(30, 174, 219, 0.3)'
+					},
+					'50%': { 
+						opacity: '1',
+						boxShadow: '0 0 30px rgba(30, 174, 219, 0.5)'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
+				},
+				'typing': {
+					'0%': { width: '0%' },
+					'100%': { width: '100%' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+				'float': 'float 6s ease-in-out infinite',
+				'typing': 'typing 3.5s steps(40, end)'
+			},
+			fontFamily: {
+				'sans': ['Inter', 'sans-serif'],
+				'mono': ['JetBrains Mono', 'monospace']
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'futuristic-grid': 'linear-gradient(rgba(30, 174, 219, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 174, 219, 0.05) 1px, transparent 1px)',
+			},
+			backgroundSize: {
+				'grid-pattern': '30px 30px',
 			}
 		}
 	},
