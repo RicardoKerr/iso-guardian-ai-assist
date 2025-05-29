@@ -16,14 +16,14 @@ export function Header() {
             <h1 className="text-xl font-bold bg-gradient-to-r from-iso-purple to-iso-blue bg-clip-text text-transparent">
               ISO Guardian
             </h1>
-            <p className="text-xs text-muted-foreground">ISO/IEC 27001 Compliance Assistant</p>
+            <p className="text-xs text-muted-foreground">Assistente de Conformidade ISO/IEC 27001</p>
           </div>
         </div>
         <nav className="hidden md:flex space-x-6">
-          <NavLink href="#" active>Home</NavLink>
-          <NavLink href="#">About</NavLink>
-          <NavLink href="#">Resources</NavLink>
-          <NavLink href="#">Contact</NavLink>
+          <NavLink href="#" active>Início</NavLink>
+          <NavLink href="#">Sobre</NavLink>
+          <NavLink href="#">Recursos</NavLink>
+          <NavLink href="#">Contato</NavLink>
         </nav>
       </div>
     </header>

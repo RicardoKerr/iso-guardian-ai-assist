@@ -59,7 +59,7 @@ export function AIAvatar({ isProcessing = false, isSpeaking = false }: AIAvatarP
       <div className="absolute bottom-2 right-2 flex items-center space-x-2 bg-iso-dark/80 px-3 py-1 rounded-full text-xs">
         <span className={`h-2 w-2 rounded-full ${isProcessing || isSpeaking ? 'bg-iso-blue animate-pulse' : 'bg-iso-purple/50'}`}></span>
         <span className="text-iso-purple/80">
-          {isProcessing ? 'Processing...' : isSpeaking ? 'Speaking...' : 'Ready'}
+          {isProcessing ? 'Processando...' : isSpeaking ? 'Falando...' : 'Pronto'}
         </span>
       </div>
     </div>

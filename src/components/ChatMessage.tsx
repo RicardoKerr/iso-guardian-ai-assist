@@ -17,7 +17,7 @@ export function ChatMessage({ type, content, timestamp = new Date() }: ChatMessa
         
         <div className="text-sm mb-1">
           {type === 'user' ? (
-            <span className="text-iso-purple font-medium">You</span>
+            <span className="text-iso-purple font-medium">Você</span>
           ) : (
             <span className="text-iso-blue font-medium">ISO Guardian</span>
           )}

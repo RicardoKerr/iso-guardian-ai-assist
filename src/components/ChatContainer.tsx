@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatInput } from './ChatInput';
 import { ChatMessage, MessageType } from './ChatMessage';
@@ -26,7 +25,7 @@ export function ChatContainer() {
     {
       id: '1',
       type: 'ai',
-      content: 'Welcome to the ISO Guardian! I\'m your AI assistant for ISO/IEC 27001 compliance. How can I help you today with your information security management system?',
+      content: 'Bem-vindo ao ISO Guardian! Sou seu assistente de IA para conformidade com ISO/IEC 27001. Como posso ajudá-lo hoje com seu sistema de gestão de segurança da informação?',
       timestamp: new Date()
     }
   ]);
@@ -70,7 +69,6 @@ export function ChatContainer() {
         timestamp: new Date()
       }]);
       
-      // Simulate speaking time based on message length
       // Fix: Convert the result of Math.min to a number explicitly
       setTimeout(() => {
         setIsSpeaking(false);
@@ -133,7 +131,7 @@ export function ChatContainer() {
     const file = files.find(f => f.id === fileId);
     if (!file) return;
     
-    alert(`Downloading ${file.name}. In a production app, this would trigger the actual file download.`);
+    alert(`Baixando ${file.name}. Em um aplicativo de produção, isso iniciaria o download real do arquivo.`);
   };
   
   return (
@@ -144,16 +142,16 @@ export function ChatContainer() {
           isSpeaking={isSpeaking} 
         />
         <div className="w-full mt-6 space-y-4">
-          <SuggestionButton onClick={() => handleSendMessage("What is ISO/IEC 27001?")}>
-            What is ISO/IEC 27001?
+          <SuggestionButton onClick={() => handleSendMessage("O que é ISO/IEC 27001?")}>
+            O que é ISO/IEC 27001?
           </SuggestionButton>
           
-          <SuggestionButton onClick={() => handleSendMessage("How do I prepare for an ISO 27001 audit?")}>
-            How do I prepare for an ISO 27001 audit?
+          <SuggestionButton onClick={() => handleSendMessage("Como me preparar para uma auditoria ISO 27001?")}>
+            Como me preparar para uma auditoria ISO 27001?
           </SuggestionButton>
           
-          <SuggestionButton onClick={() => handleSendMessage("What documents are required for ISO 27001 compliance?")}>
-            Required ISO 27001 documents?
+          <SuggestionButton onClick={() => handleSendMessage("Quais documentos são necessários para conformidade ISO 27001?")}>
+            Documentos necessários ISO 27001?
           </SuggestionButton>
         </div>
       </div>
@@ -228,19 +226,19 @@ function formatFileSize(bytes: number): string {
 function getAIResponse(message: string): string {
   const messageLower = message.toLowerCase();
   
-  if (messageLower.includes('what is iso') || messageLower.includes('what is 27001')) {
-    return "ISO/IEC 27001 is an international standard for information security management. It provides a framework for organizations to protect their information through risk management. The standard helps organizations manage the security of assets such as financial information, intellectual property, employee details, and third-party entrusted information.";
+  if (messageLower.includes('o que é iso') || messageLower.includes('o que é 27001')) {
+    return "A ISO/IEC 27001 é um padrão internacional para gestão de segurança da informação. Fornece uma estrutura para as organizações protegerem suas informações através da gestão de riscos. O padrão ajuda as organizações a gerenciar a segurança de ativos como informações financeiras, propriedade intelectual, detalhes de funcionários e informações confiadas por terceiros.";
   } 
-  else if (messageLower.includes('audit')) {
-    return "To prepare for an ISO 27001 audit, you should:\n\n1. Ensure all required documentation is up-to-date\n2. Conduct internal audits to identify gaps\n3. Address any nonconformities\n4. Train relevant staff on procedures\n5. Review your information security management system (ISMS)\n6. Prepare evidence of control implementation\n7. Brief key stakeholders about the audit process";
+  else if (messageLower.includes('auditoria')) {
+    return "Para se preparar para uma auditoria ISO 27001, você deve:\n\n1. Garantir que toda a documentação obrigatória esteja atualizada\n2. Realizar auditorias internas para identificar lacunas\n3. Tratar quaisquer não conformidades\n4. Treinar a equipe relevante nos procedimentos\n5. Revisar seu sistema de gestão de segurança da informação (SGSI)\n6. Preparar evidências da implementação de controles\n7. Orientar as principais partes interessadas sobre o processo de auditoria";
   }
-  else if (messageLower.includes('document') || messageLower.includes('documentation')) {
-    return "Key documents required for ISO 27001 compliance include:\n\n1. Information Security Policy\n2. Statement of Applicability (SoA)\n3. Risk Assessment and Treatment Methodology\n4. Risk Treatment Plan\n5. Information Asset Inventory\n6. Access Control Policy\n7. Incident Response Plan\n8. Business Continuity Plan\n9. Internal Audit Program\n10. Management Review Process\n\nWould you like me to provide more details about any specific document?";
+  else if (messageLower.includes('documento') || messageLower.includes('documentação')) {
+    return "Documentos principais necessários para conformidade ISO 27001 incluem:\n\n1. Política de Segurança da Informação\n2. Declaração de Aplicabilidade (DdA)\n3. Metodologia de Avaliação e Tratamento de Riscos\n4. Plano de Tratamento de Riscos\n5. Inventário de Ativos de Informação\n6. Política de Controle de Acesso\n7. Plano de Resposta a Incidentes\n8. Plano de Continuidade de Negócios\n9. Programa de Auditoria Interna\n10. Processo de Análise Crítica da Direção\n\nGostaria que eu fornecesse mais detalhes sobre algum documento específico?";
   }
-  else if (messageLower.includes('upload') || messageLower.includes('file')) {
-    return "You can upload your security documents or forms for analysis. I can review them against ISO 27001 requirements and provide feedback on compliance gaps. Would you like to upload a document now?";
+  else if (messageLower.includes('upload') || messageLower.includes('arquivo')) {
+    return "Você pode enviar seus documentos de segurança ou formulários para análise. Posso revisá-los em relação aos requisitos da ISO 27001 e fornecer feedback sobre lacunas de conformidade. Gostaria de enviar um documento agora?";
   }
   else {
-    return "Thank you for your question about ISO 27001 compliance. To provide you with the most accurate guidance, could you please specify which aspect of information security management you're interested in? I can help with risk assessment, required documentation, control implementation, audit preparation, or other compliance-related topics.";
+    return "Obrigado por sua pergunta sobre conformidade ISO 27001. Para fornecer a orientação mais precisa, você poderia especificar qual aspecto da gestão de segurança da informação lhe interessa? Posso ajudar com avaliação de riscos, documentação obrigatória, implementação de controles, preparação para auditoria ou outros tópicos relacionados à conformidade.";
   }
 }

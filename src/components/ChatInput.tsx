@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ArrowUp, FileUp, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -64,7 +63,7 @@ export function ChatInput({ onSendMessage, onUploadFile, disabled = false }: Cha
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message or question about ISO 27001..."
+        placeholder="Digite sua mensagem ou pergunta sobre ISO 27001..."
         className="flex-1 bg-transparent border-none outline-none text-sm px-3 py-2"
         disabled={disabled}
       />

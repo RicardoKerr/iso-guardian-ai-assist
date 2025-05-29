@@ -60,7 +60,7 @@ export function FileTransfer({ files, onDownload }: FileTransferProps) {
     <div className="mt-4 mb-2">
       {uploads.length > 0 && (
         <div className="mb-3">
-          <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Uploaded Files</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Arquivos Enviados</h4>
           <div>
             {uploads.map(file => (
               <FileItem 
@@ -77,7 +77,7 @@ export function FileTransfer({ files, onDownload }: FileTransferProps) {
       
       {downloads.length > 0 && (
         <div>
-          <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Files to Download</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">Arquivos para Download</h4>
           <div>
             {downloads.map(file => (
               <FileItem 

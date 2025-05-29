@@ -23,7 +23,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-3 px-6 text-center text-xs text-muted-foreground border-t border-iso-purple/20">
         <p>
-          ISO Guardian AI Assistant &copy; {new Date().getFullYear()} | ISO/IEC 27001 Compliance Tool
+          Assistente de IA ISO Guardian &copy; {new Date().getFullYear()} | Ferramenta de Conformidade ISO/IEC 27001
         </p>
       </footer>
     </div>
