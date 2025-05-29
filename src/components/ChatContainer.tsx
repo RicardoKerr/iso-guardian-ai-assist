@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Settings } from 'lucide-react';
 import { ChatInput } from './ChatInput';
 import { ChatMessage, MessageType } from './ChatMessage';
 import { FileTransfer } from './FileTransfer';
 import { AIAvatar } from './AIAvatar';
+import { WebhookSettings } from './WebhookSettings';
+import { WebhookTrigger } from './WebhookTrigger';
+import { Button } from '@/components/ui/button';
 
 interface Message {
   id: string;
@@ -33,6 +37,7 @@ export function ChatContainer() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showWebhookSettings, setShowWebhookSettings] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -141,6 +146,26 @@ export function ChatContainer() {
           isProcessing={isProcessing} 
           isSpeaking={isSpeaking} 
         />
+        
+        {/* Webhook Controls */}
+        <div className="w-full mt-4 space-y-2">
+          <WebhookTrigger 
+            chatMessages={messages}
+            files={files}
+            onTrigger={() => console.log('Dados enviados para N8N')}
+          />
+          
+          <Button
+            onClick={() => setShowWebhookSettings(true)}
+            variant="outline"
+            size="sm"
+            className="w-full bg-secondary/20 hover:bg-secondary/30 text-muted-foreground border border-secondary/30"
+          >
+            <Settings size={16} className="mr-2" />
+            Configurar N8N
+          </Button>
+        </div>
+        
         <div className="w-full mt-6 space-y-4">
           <SuggestionButton onClick={() => handleSendMessage("O que é ISO/IEC 27001?")}>
             O que é ISO/IEC 27001?
@@ -195,6 +220,11 @@ export function ChatContainer() {
           />
         </div>
       </div>
+      
+      <WebhookSettings 
+        isOpen={showWebhookSettings}
+        onClose={() => setShowWebhookSettings(false)}
+      />
     </div>
   );
 }
