@@ -11,7 +11,7 @@ interface WebhookData {
 }
 
 export function useWebhook() {
-  const [webhookUrl, setWebhookUrl] = useState('https://n8n.rakewells.com/webhook-test/e9400452-abae-444f-9e6a-54b7e72dab05');
+  const [webhookUrl, setWebhookUrl] = useState('https://n8n.rakewells.com/webhook-test/iso-guardian-27001');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -26,7 +26,8 @@ export function useWebhook() {
     }
 
     setIsLoading(true);
-    console.log("Enviando dados para webhook N8N:", webhookUrl);
+    const start = performance.now();
+    console.info("[Webhook] Enviando dados para N8N", { url: webhookUrl, ts: new Date().toISOString() });
 
     try {
       const response = await fetch(webhookUrl, {
@@ -42,6 +43,9 @@ export function useWebhook() {
         }),
       });
 
+      const duration = Math.round(performance.now() - start);
+      console.info("[Webhook] Requisição finalizada", { durationMs: duration, corsMode: "no-cors" });
+
       toast({
         title: "Dados Enviados",
         description: "Dados de conformidade enviados para o N8N com sucesso. Verifique o histórico do seu workflow.",
@@ -49,7 +53,8 @@ export function useWebhook() {
       
       return true;
     } catch (error) {
-      console.error("Erro ao enviar webhook:", error);
+      const duration = Math.round(performance.now() - start);
+      console.error("Erro ao enviar webhook:", error, { durationMs: duration });
       toast({
         title: "Erro",
         description: "Falha ao enviar dados para o N8N. Verifique a URL e tente novamente.",
