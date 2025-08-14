@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useWebhookMonitoring } from '@/hooks/useWebhookMonitoring';
 
 interface WebhookData {
   timestamp: string;
@@ -14,6 +15,7 @@ interface MessageData {
   message: string;
   timestamp: string;
   sessionId: string;
+  messageType: string;
   context: {
     previousMessages: any[];
     files: any[];
@@ -31,6 +33,7 @@ export function useWebhook() {
   const [webhookUrl, setWebhookUrl] = useState('https://n8n.rakewells.com/webhook-test/iso-guardian-27001');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const monitoring = useWebhookMonitoring();
 
   const sendWebhook = async (data: WebhookData) => {
     if (!webhookUrl) {
@@ -44,7 +47,19 @@ export function useWebhook() {
 
     setIsLoading(true);
     const start = performance.now();
-    console.info("[Webhook] Enviando dados para N8N", { url: webhookUrl, ts: new Date().toISOString() });
+    const timestamp = new Date().toISOString();
+    
+    // Add request to monitoring
+    const requestId = monitoring.addRequest({
+      url: webhookUrl,
+      method: 'POST',
+      timestamp,
+      payload: data,
+      status: 'pending',
+      messageType: 'webhook-data'
+    });
+    
+    console.info("[Webhook] Enviando dados para N8N", { url: webhookUrl, ts: timestamp });
 
     try {
       const response = await fetch(webhookUrl, {
@@ -63,11 +78,28 @@ export function useWebhook() {
       const duration = Math.round(performance.now() - start);
       
       if (!response.ok) {
+        const errorMsg = `HTTP ${response.status}: ${response.statusText}`;
         console.error("[Webhook] Erro na resposta", { status: response.status, statusText: response.statusText, durationMs: duration });
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        
+        monitoring.updateRequest(requestId, {
+          status: 'error',
+          duration,
+          error: errorMsg,
+          timestamp: new Date().toISOString()
+        });
+        
+        throw new Error(errorMsg);
       }
 
+      const responseData = await response.json();
       console.info("[Webhook] Requisição finalizada", { status: response.status, durationMs: duration });
+
+      monitoring.updateRequest(requestId, {
+        status: 'success',
+        duration,
+        response: responseData,
+        timestamp: new Date().toISOString()
+      });
 
       toast({
         title: "Dados Enviados",
@@ -77,7 +109,17 @@ export function useWebhook() {
       return true;
     } catch (error) {
       const duration = Math.round(performance.now() - start);
+      const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido';
+      
       console.error("Erro ao enviar webhook:", error, { durationMs: duration });
+      
+      monitoring.updateRequest(requestId, {
+        status: 'error',
+        duration,
+        error: errorMsg,
+        timestamp: new Date().toISOString()
+      });
+      
       toast({
         title: "Erro",
         description: "Falha ao enviar dados para o N8N. Verifique a URL e tente novamente.",
@@ -101,10 +143,23 @@ export function useWebhook() {
 
     setIsLoading(true);
     const start = performance.now();
+    const timestamp = new Date().toISOString();
+    
+    // Add request to monitoring
+    const requestId = monitoring.addRequest({
+      url: webhookUrl,
+      method: 'POST',
+      timestamp,
+      payload: messageData,
+      status: 'pending',
+      messageType: messageData.messageType
+    });
+    
     console.info("[Webhook] Enviando mensagem para N8N", { 
       url: webhookUrl, 
       messagePreview: messageData.message.substring(0, 50),
-      ts: new Date().toISOString() 
+      messageType: messageData.messageType,
+      ts: timestamp 
     });
 
     try {
@@ -125,8 +180,17 @@ export function useWebhook() {
       const duration = Math.round(performance.now() - start);
       
       if (!response.ok) {
+        const errorMsg = `HTTP ${response.status}: ${response.statusText}`;
         console.error("[Webhook] Erro na resposta da mensagem", { status: response.status, statusText: response.statusText, durationMs: duration });
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        
+        monitoring.updateRequest(requestId, {
+          status: 'error',
+          duration,
+          error: errorMsg,
+          timestamp: new Date().toISOString()
+        });
+        
+        throw new Error(errorMsg);
       }
 
       const responseData: N8NResponse = await response.json();
@@ -134,13 +198,31 @@ export function useWebhook() {
         status: response.status, 
         hasMessage: !!responseData.message,
         hasAudio: !!(responseData.audioUrl || responseData.audioBase64),
+        messageType: messageData.messageType,
         durationMs: duration 
+      });
+      
+      monitoring.updateRequest(requestId, {
+        status: 'success',
+        duration,
+        response: responseData,
+        timestamp: new Date().toISOString()
       });
       
       return responseData;
     } catch (error) {
       const duration = Math.round(performance.now() - start);
+      const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido';
+      
       console.error("Erro ao enviar mensagem para webhook:", error, { durationMs: duration });
+      
+      monitoring.updateRequest(requestId, {
+        status: 'error',
+        duration,
+        error: errorMsg,
+        timestamp: new Date().toISOString()
+      });
+      
       return null;
     } finally {
       setIsLoading(false);
@@ -159,12 +241,26 @@ export function useWebhook() {
     return await sendWebhook(testData);
   };
 
+  // Start health check when webhook URL is set
+  const startMonitoring = () => {
+    if (webhookUrl) {
+      monitoring.startHealthCheck(webhookUrl);
+    }
+  };
+
+  const stopMonitoring = () => {
+    monitoring.stopHealthCheck();
+  };
+
   return {
     webhookUrl,
     setWebhookUrl,
     isLoading,
     sendWebhook,
     sendMessage,
-    testWebhook
+    testWebhook,
+    monitoring,
+    startMonitoring,
+    stopMonitoring
   };
 }

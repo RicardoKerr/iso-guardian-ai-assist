@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, Activity } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ChatInput } from './ChatInput';
 import { ChatMessage, MessageType } from './ChatMessage';
 import { FileTransfer } from './FileTransfer';
 import { AIAvatar } from './AIAvatar';
 import { WebhookSettings } from './WebhookSettings';
 import { WebhookTrigger } from './WebhookTrigger';
+import { WebhookMonitor } from './WebhookMonitor';
 import { Button } from '@/components/ui/button';
 import { useWebhook } from '@/hooks/useWebhook';
 
@@ -41,7 +43,8 @@ export function ChatContainer() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showWebhookSettings, setShowWebhookSettings] = useState(false);
-  const { sendMessage, isLoading } = useWebhook();
+  const [showWebhookMonitor, setShowWebhookMonitor] = useState(false);
+  const { sendMessage, isLoading, monitoring } = useWebhook();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -201,6 +204,16 @@ export function ChatContainer() {
             <Settings size={16} className="mr-2" />
             Configurar N8N
           </Button>
+          
+          <Button
+            onClick={() => setShowWebhookMonitor(true)}
+            variant="outline"
+            size="sm"
+            className="w-full bg-iso-blue/20 hover:bg-iso-blue/30 text-iso-blue border border-iso-blue/30"
+          >
+            <Activity size={16} className="mr-2" />
+            Monitor N8N
+          </Button>
         </div>
         
         <div className="w-full mt-6 space-y-4">
@@ -264,6 +277,22 @@ export function ChatContainer() {
         isOpen={showWebhookSettings}
         onClose={() => setShowWebhookSettings(false)}
       />
+
+      {/* Webhook Monitor Dialog */}
+      <Dialog open={showWebhookMonitor} onOpenChange={setShowWebhookMonitor}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Activity className="w-5 h-5 text-iso-blue" />
+              <span>Monitor de Webhook N8N</span>
+            </DialogTitle>
+            <DialogDescription>
+              Monitore requisições, latência e status de conectividade com o N8N em tempo real.
+            </DialogDescription>
+          </DialogHeader>
+          <WebhookMonitor monitoring={monitoring} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
