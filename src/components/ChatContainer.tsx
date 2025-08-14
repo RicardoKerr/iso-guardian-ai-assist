@@ -7,12 +7,15 @@ import { AIAvatar } from './AIAvatar';
 import { WebhookSettings } from './WebhookSettings';
 import { WebhookTrigger } from './WebhookTrigger';
 import { Button } from '@/components/ui/button';
+import { useWebhook } from '@/hooks/useWebhook';
 
 interface Message {
   id: string;
   type: MessageType;
   content: string;
   timestamp: Date;
+  audioUrl?: string;
+  audioBase64?: string;
 }
 
 // Rename our custom File interface to FileItem to avoid conflicts with the browser's File interface
@@ -38,6 +41,7 @@ export function ChatContainer() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showWebhookSettings, setShowWebhookSettings] = useState(false);
+  const { sendMessage, isLoading } = useWebhook();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -49,7 +53,7 @@ export function ChatContainer() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -61,24 +65,53 @@ export function ChatContainer() {
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
     
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const aiResponse = getAIResponse(content);
+    // Prepare message data for N8N
+    const messageData = {
+      message: content,
+      timestamp: new Date().toISOString(),
+      sessionId: generateSessionId(),
+      context: {
+        previousMessages: messages.slice(-5), // Last 5 messages for context
+        files: files
+      }
+    };
+    
+    try {
+      // Send to N8N and get response
+      const n8nResponse = await sendMessage(messageData);
+      
       setIsProcessing(false);
       setIsSpeaking(true);
+      
+      // Use N8N response or fallback
+      const aiContent = n8nResponse?.message || getAIResponse(content);
       
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: aiResponse,
-        timestamp: new Date()
+        content: aiContent,
+        timestamp: new Date(),
+        audioUrl: n8nResponse?.audioUrl,
+        audioBase64: n8nResponse?.audioBase64
       }]);
       
-      // Fix: Convert the result of Math.min to a number explicitly
+      // Calculate speaking duration based on content length
       setTimeout(() => {
         setIsSpeaking(false);
-      }, Math.min(aiResponse.length * 40, 3000));
-    }, 1500);
+      }, Math.min(aiContent.length * 40, 3000));
+      
+    } catch (error) {
+      console.error("Erro ao processar mensagem:", error);
+      setIsProcessing(false);
+      
+      // Fallback to static response on error
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: getAIResponse(content),
+        timestamp: new Date()
+      }]);
+    }
   };
   
   // Fix: Update this function to handle the browser's File interface
@@ -189,6 +222,8 @@ export function ChatContainer() {
               type={message.type}
               content={message.content}
               timestamp={message.timestamp}
+              audioUrl={message.audioUrl}
+              audioBase64={message.audioBase64}
             />
           ))}
           
@@ -216,7 +251,7 @@ export function ChatContainer() {
           <ChatInput 
             onSendMessage={handleSendMessage}
             onUploadFile={handleUploadFile}
-            disabled={isProcessing}
+            disabled={isProcessing || isLoading}
           />
         </div>
       </div>
@@ -271,4 +306,9 @@ function getAIResponse(message: string): string {
   else {
     return "Obrigado por sua pergunta sobre conformidade ISO 27001. Para fornecer a orientação mais precisa, você poderia especificar qual aspecto da gestão de segurança da informação lhe interessa? Posso ajudar com avaliação de riscos, documentação obrigatória, implementação de controles, preparação para auditoria ou outros tópicos relacionados à conformidade.";
   }
+}
+
+// Generate a session ID for tracking conversations
+function generateSessionId(): string {
+  return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }

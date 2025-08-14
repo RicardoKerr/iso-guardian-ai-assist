@@ -7,9 +7,11 @@ interface ChatMessageProps {
   type: MessageType;
   content: string;
   timestamp?: Date;
+  audioUrl?: string;
+  audioBase64?: string;
 }
 
-export function ChatMessage({ type, content, timestamp = new Date() }: ChatMessageProps) {
+export function ChatMessage({ type, content, timestamp = new Date(), audioUrl, audioBase64 }: ChatMessageProps) {
   return (
     <div className={`flex ${type === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
       <div className={`max-w-[75%] lg:max-w-[60%] ${type === 'user' ? 'bg-iso-purple/20' : 'bg-iso-blue/10'} 
@@ -26,6 +28,18 @@ export function ChatMessage({ type, content, timestamp = new Date() }: ChatMessa
         <div className="text-sm whitespace-pre-wrap">
           {content}
         </div>
+        
+        {(audioUrl || audioBase64) && (
+          <div className="mt-3">
+            <audio 
+              controls 
+              className="w-full max-w-xs"
+              src={audioUrl || (audioBase64 ? `data:audio/mp3;base64,${audioBase64}` : undefined)}
+            >
+              Seu navegador não suporta áudio.
+            </audio>
+          </div>
+        )}
         
         <div className="text-[10px] text-muted-foreground mt-2 text-right">
           {formatTimestamp(timestamp)}
