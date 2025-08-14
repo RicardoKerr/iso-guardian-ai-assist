@@ -65,11 +65,15 @@ export function ChatContainer() {
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
     
+    // Determine message type based on content and context
+    const messageType = detectMessageType(content, files);
+    
     // Prepare message data for N8N
     const messageData = {
       message: content,
       timestamp: new Date().toISOString(),
       sessionId: generateSessionId(),
+      messageType: messageType,
       context: {
         previousMessages: messages.slice(-5), // Last 5 messages for context
         files: files
@@ -311,4 +315,35 @@ function getAIResponse(message: string): string {
 // Generate a session ID for tracking conversations
 function generateSessionId(): string {
   return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Detect message type based on content and context
+function detectMessageType(content: string, files: FileItem[]): string {
+  const contentLower = content.toLowerCase();
+  
+  // Check if message mentions file upload
+  if (contentLower.includes('upload') || contentLower.includes('arquivo') || 
+      contentLower.includes('enviado') || contentLower.includes('file')) {
+    return 'document';
+  }
+  
+  // Check if there are recent file uploads
+  if (files.length > 0 && files.some(f => f.status === 'complete' && f.type === 'upload')) {
+    return 'document';
+  }
+  
+  // Check for audio-related keywords
+  if (contentLower.includes('áudio') || contentLower.includes('audio') || 
+      contentLower.includes('som') || contentLower.includes('voice')) {
+    return 'audio';
+  }
+  
+  // Check for image-related keywords
+  if (contentLower.includes('imagem') || contentLower.includes('image') || 
+      contentLower.includes('foto') || contentLower.includes('picture')) {
+    return 'image';
+  }
+  
+  // Default to text
+  return 'text';
 }
