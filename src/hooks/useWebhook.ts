@@ -62,18 +62,24 @@ export function useWebhook() {
     console.info("[Webhook] Enviando dados para N8N", { url: webhookUrl, ts: timestamp });
 
     try {
-      const response = await fetch(webhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        mode: "cors",
-        body: JSON.stringify({
-          ...data,
-          source: "ISO Guardian",
-          triggered_from: window.location.origin,
+      const response = await Promise.race([
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          mode: "cors",
+          body: JSON.stringify({
+            ...data,
+            source: "ISO Guardian",
+            triggered_from: window.location.origin,
+          }),
         }),
-      });
+        new Promise<Response>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout ao contatar o webhook (15s)')), 15000)
+        )
+      ]);
 
       const duration = Math.round(performance.now() - start);
       
@@ -163,19 +169,25 @@ export function useWebhook() {
     });
 
     try {
-      const response = await fetch(webhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        mode: "cors",
-        body: JSON.stringify({
-          ...messageData,
-          type: "chat_message",
-          source: "ISO Guardian",
-          triggered_from: window.location.origin,
+      const response = await Promise.race([
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          mode: "cors",
+          body: JSON.stringify({
+            ...messageData,
+            type: "chat_message",
+            source: "ISO Guardian",
+            triggered_from: window.location.origin,
+          }),
         }),
-      });
+        new Promise<Response>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout ao contatar o webhook (15s)')), 15000)
+        )
+      ]);
 
       const duration = Math.round(performance.now() - start);
       
