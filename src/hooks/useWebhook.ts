@@ -205,7 +205,13 @@ export function useWebhook() {
         throw new Error(errorMsg);
       }
 
-      const responseData: N8NResponse = await response.json();
+      const raw = await response.json();
+      const responseData: N8NResponse = {
+        message: raw?.message ?? raw?.text ?? raw?.data?.message,
+        audioUrl: raw?.audioUrl,
+        audioBase64: raw?.audioBase64,
+        data: raw,
+      };
       console.info("[Webhook] Resposta da mensagem recebida", { 
         status: response.status, 
         hasMessage: !!responseData.message,
