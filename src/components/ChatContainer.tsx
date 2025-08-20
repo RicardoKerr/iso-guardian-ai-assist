@@ -56,13 +56,14 @@ export function ChatContainer() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
   
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, audioBase64?: string) => {
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
       content,
-      timestamp: new Date()
+      timestamp: new Date(),
+      audioBase64: audioBase64
     };
     
     setMessages(prev => [...prev, userMessage]);
@@ -74,9 +75,10 @@ export function ChatContainer() {
     // Prepare message data for N8N
     const messageData = {
       message: content,
+      audioBase64: audioBase64,
       timestamp: new Date().toISOString(),
       sessionId: generateSessionId(),
-      messageType: messageType,
+      messageType: audioBase64 ? 'audio' : messageType,
       context: {
         previousMessages: messages.slice(-5), // Last 5 messages for context
         files: files
