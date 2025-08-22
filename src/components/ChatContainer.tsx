@@ -70,11 +70,11 @@ export function ChatContainer() {
     setIsProcessing(true);
     
     // Determine message type based on content and context
-    const messageType = detectMessageType(content, files);
+    const messageType = detectMessageType(content, files, audioBase64);
     
     // Prepare message data for N8N
     const messageData = {
-      message: content,
+      message: audioBase64 ? "Áudio enviado" : content,
       audioBase64: audioBase64,
       timestamp: new Date().toISOString(),
       sessionId: generateSessionId(),
@@ -349,8 +349,13 @@ function generateSessionId(): string {
 }
 
 // Detect message type based on content and context
-function detectMessageType(content: string, files: FileItem[]): string {
+function detectMessageType(content: string, files: FileItem[], audioBase64?: string): string {
   const contentLower = content.toLowerCase();
+  
+  // Check if audioBase64 is provided (priority check)
+  if (audioBase64) {
+    return 'audio';
+  }
   
   // Check if message mentions file upload
   if (contentLower.includes('upload') || contentLower.includes('arquivo') || 

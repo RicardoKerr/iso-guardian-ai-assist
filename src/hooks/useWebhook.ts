@@ -13,6 +13,7 @@ interface WebhookData {
 
 interface MessageData {
   message: string;
+  audioBase64?: string;
   timestamp: string;
   sessionId: string;
   messageType: string;
@@ -168,6 +169,45 @@ export function useWebhook() {
       ts: timestamp 
     });
 
+    // Create WhatsApp-like format
+    const whatsappPayload = {
+      headers: {
+        host: new URL(webhookUrl).hostname,
+        "user-agent": "ISO Guardian/1.0",
+        "content-type": "application/json"
+      },
+      params: {},
+      query: {},
+      body: {
+        event: "messages.upsert",
+        instance: "ISO Guardian",
+        data: {
+          key: {
+            remoteJid: `${messageData.sessionId}@s.whatsapp.net`,
+            fromMe: true,
+            id: `MSG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          },
+          pushName: "ISO Guardian User",
+          status: "DELIVERY_ACK",
+          message: messageData.messageType === 'audio' 
+            ? { audioMessage: { base64: messageData.audioBase64, speechToText: messageData.message } }
+            : { conversation: messageData.message },
+          contextInfo: messageData.context,
+          messageType: messageData.messageType,
+          messageTimestamp: Math.floor(Date.now() / 1000),
+          instanceId: messageData.sessionId,
+          source: "web"
+        },
+        destination: webhookUrl,
+        date_time: timestamp,
+        sender: `${messageData.sessionId}@s.whatsapp.net`,
+        server_url: window.location.origin,
+        apikey: "ISO-GUARDIAN-API"
+      },
+      webhookUrl: webhookUrl,
+      executionMode: "production"
+    };
+
     try {
       const response = await Promise.race([
         fetch(webhookUrl, {
@@ -177,12 +217,7 @@ export function useWebhook() {
             Accept: "application/json",
           },
           mode: "cors",
-          body: JSON.stringify({
-            ...messageData,
-            type: "chat_message",
-            source: "ISO Guardian",
-            triggered_from: window.location.origin,
-          }),
+          body: JSON.stringify(whatsappPayload),
         }),
         new Promise<Response>((_, reject) =>
           setTimeout(() => reject(new Error('Timeout ao contatar o webhook (15s)')), 15000)
